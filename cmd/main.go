@@ -1,20 +1,23 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"log"
 
 	"github.com/XenosWarlocks/NestCart/cmd/api"
+	"github.com/XenosWarlocks/NestCart/configs"
 	"github.com/XenosWarlocks/NestCart/db"
 	"github.com/go-sql-driver/mysql"
 )
 
 func main() {
 	cfg := mysql.Config{
-		User:                 "roots",
-		Passwd:               "password",
+		User:                 configs.Envs.DBUser,
+		Passwd:               configs.Envs.DBPassword,
+		Addr:                 configs.Envs.DBAddress,
+		DBName:               configs.Envs.DBName,
 		Net:                  "tcp",
-		Addr:                 "127.0.0.1:3306",
-		DBName:               "XXXXXXXX",
 		AllowNativePasswords: true,
 		ParseTime:            true,
 	}
@@ -22,8 +25,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	server := api.NewAPIServer(":8080", nil)
+
+	initStorage(db)
+
+	server := api.NewAPIServer(fmt.Sprintf(":%s", configs.Envs.Port), db)
 	if err := server.Run(); err != nil {
 		log.Fatal()
 	}
+}
+
+func initStorage(db *sql.DB) {
+	err := db.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println("DB: Successfully connected!")
 }

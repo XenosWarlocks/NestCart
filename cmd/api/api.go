@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/XenosWarlocks/NestCart/services/user"
 	"github.com/gorilla/mux"
 )
 
@@ -20,9 +21,12 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 	}
 }
 
-func (s, *APIServer) Run() error {
+func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
+
+	userHandler := user.NewHandler()
+	userHandler.RegisterRoutes(subrouter)
 
 	log.Println("Listening on", s.addr)
 

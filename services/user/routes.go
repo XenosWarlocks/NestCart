@@ -46,4 +46,14 @@ func (h *Handler) handleRegister(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s already exists", user.Email))
 		return
 	}
+
+	// Hashed password
+	hashedPassword := ""
+
+	err = h.store.CreateUser(types.User{
+		FirstName: user.FirstName,
+		LastName:  user.LastName,
+		Email:     user.Email,
+		Password:  hashedPassword,
+	})
 }
